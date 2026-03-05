@@ -170,5 +170,31 @@ namespace WinFormBuilderN.Tests
             FormFunctions.DeleteObject(orders, toDelete);
             Assert.That(orders.Contains(toDelete), Is.False);
         }
+
+        [Test]
+        public void LoadGenericObject_FailsWhenTypeMismatch()
+        {
+            // red/green TDD: this test will *fail* initially because the library throws
+            // when a control property cannot accept the model value. We expect no
+            // exception once the code is fixed.
+
+            // Model with a double field
+            var model = new ModelWithDouble { Price = 12.34 };
+
+            var group = new GroupBox();
+            var tbPrice = new TextBox() { Tag = "orders,Text,Price,field" };
+            group.Controls.Add(tbPrice);
+
+            // we assert that no exception is thrown; since the existing implementation
+            // throws an ArgumentException, this assertion will fail and highlight the bug.
+            Assert.DoesNotThrow(() =>
+                FormFunctions.loadGenericObject(model, "orders", group));
+        }
+
+        // Helper class for the test
+        public class ModelWithDouble
+        {
+            public double Price;
+        }
     }
 }
