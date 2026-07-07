@@ -10,6 +10,7 @@ from pyqt_form_builder.form_functions import (
     load_fields,
     update_fields,
 )
+from pyqt_form_builder.sample_app import Item, Order, SampleWindow
 from PyQt5.QtWidgets import QApplication, QLineEdit, QWidget, QVBoxLayout
 
 app = QApplication.instance() or QApplication([])
@@ -57,17 +58,46 @@ class FormFunctionsTests(unittest.TestCase):
         self.assertEqual(model.price, "12.5")
 
     def test_create_and_delete_object(self):
-        class Item:
+        class ItemValue:
             def __init__(self):
                 self.serial = ""
 
         items = []
-        created = create_object(items, Item)
-        self.assertIsInstance(created, Item)
+        created = create_object(items, ItemValue)
+        self.assertIsInstance(created, ItemValue)
         self.assertEqual(len(items), 1)
 
         delete_object(items, created)
         self.assertEqual(len(items), 0)
+
+    def test_sample_window_can_create_nested_item(self):
+        window = SampleWindow()
+        order = Order()
+
+        item = window.add_item_to_order(order)
+
+        self.assertIsInstance(item, Item)
+        self.assertEqual(len(order.items), 1)
+        self.assertEqual(order.items[0], item)
+
+    def test_sample_window_can_save_and_load_json(self):
+        window = SampleWindow()
+        order = Order()
+        order.name = "Saved Order"
+        order.price = "42"
+        item = Item()
+        item.serial = "SN999"
+        item.qty = "7"
+        order.items.append(item)
+        window.orders = [order]
+        window.on_save_json()
+        window.orders = []
+        window.on_load_json()
+
+        self.assertEqual(len(window.orders), 1)
+        self.assertEqual(window.orders[0].name, "Saved Order")
+        self.assertEqual(window.orders[0].items[0].serial, "SN999")
+        self.assertEqual(window.orders[0].items[0].qty, "7")
 
 
 if __name__ == "__main__":
