@@ -99,6 +99,23 @@ class FormFunctionsTests(unittest.TestCase):
         self.assertEqual(window.orders[0].items[0].serial, "SN999")
         self.assertEqual(window.orders[0].items[0].qty, "7")
 
+    def test_create_item_uses_current_field_values_and_update_order(self):
+        window = SampleWindow()
+        window.order_list.setCurrentRow(0)
+        window.name_edit.setText("Updated Order")
+        window.price_edit.setText("88.8")
+        window.serial_edit.setText("SN777")
+        window.qty_edit.setText("3")
+
+        window.on_update_order()
+        window.on_create_item()
+
+        order = window.orders[0]
+        self.assertEqual(order.name, "Updated Order")
+        self.assertEqual(order.price, "88.8")
+        self.assertEqual(order.items[-1].serial, "SN777")
+        self.assertEqual(order.items[-1].qty, "3")
+
 
 if __name__ == "__main__":
     unittest.main()

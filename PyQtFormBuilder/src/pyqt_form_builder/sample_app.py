@@ -49,8 +49,10 @@ class SampleWindow(QWidget):
         self.serial_edit = QLineEdit()
         self.qty_edit = QLineEdit()
         self.create_order_button = QPushButton("Create Order")
+        self.update_order_button = QPushButton("Update Order")
         self.delete_order_button = QPushButton("Delete Order")
         self.create_item_button = QPushButton("Add Item")
+        self.update_item_button = QPushButton("Update Item")
         self.delete_item_button = QPushButton("Delete Item")
         self.load_button = QPushButton("Load JSON")
         self.save_button = QPushButton("Save JSON")
@@ -64,12 +66,14 @@ class SampleWindow(QWidget):
         order_layout.addWidget(QLabel("Orders"))
         order_layout.addWidget(self.order_list)
         order_layout.addWidget(self.create_order_button)
+        order_layout.addWidget(self.update_order_button)
         order_layout.addWidget(self.delete_order_button)
 
         item_layout = QVBoxLayout()
         item_layout.addWidget(QLabel("Items"))
         item_layout.addWidget(self.item_list)
         item_layout.addWidget(self.create_item_button)
+        item_layout.addWidget(self.update_item_button)
         item_layout.addWidget(self.delete_item_button)
 
         form_layout = QFormLayout()
@@ -91,8 +95,10 @@ class SampleWindow(QWidget):
         main_layout.addLayout(button_row)
 
         self.create_order_button.clicked.connect(self.on_create_order)
+        self.update_order_button.clicked.connect(self.on_update_order)
         self.delete_order_button.clicked.connect(self.on_delete_order)
         self.create_item_button.clicked.connect(self.on_create_item)
+        self.update_item_button.clicked.connect(self.on_update_item)
         self.delete_item_button.clicked.connect(self.on_delete_item)
         self.load_button.clicked.connect(self.on_load_json)
         self.save_button.clicked.connect(self.on_save_json)
@@ -135,6 +141,15 @@ class SampleWindow(QWidget):
         self._refresh_orders()
         self.order_list.setCurrentRow(self.order_list.count() - 1)
 
+    def on_update_order(self):
+        current_row = self.order_list.currentRow()
+        if current_row < 0 or current_row >= len(self.orders):
+            return
+        order = self.orders[current_row]
+        update_fields(order, [self.name_edit, self.price_edit])
+        self._refresh_orders()
+        self.order_list.setCurrentRow(current_row)
+
     def on_delete_order(self):
         current_row = self.order_list.currentRow()
         if current_row >= 0 and current_row < len(self.orders):
@@ -146,7 +161,23 @@ class SampleWindow(QWidget):
         if current_row < 0 or current_row >= len(self.orders):
             return
         order = self.orders[current_row]
-        self.add_item_to_order(order)
+        item = self.add_item_to_order(order)
+        update_fields(item, [self.serial_edit, self.qty_edit])
+        self._refresh_items(order)
+        self.item_list.setCurrentRow(self.item_list.count() - 1)
+
+    def on_update_item(self):
+        current_row = self.order_list.currentRow()
+        if current_row < 0 or current_row >= len(self.orders):
+            return
+        order = self.orders[current_row]
+        item_row = self.item_list.currentRow()
+        if item_row < 0 or item_row >= len(order.items):
+            return
+        item = order.items[item_row]
+        update_fields(item, [self.serial_edit, self.qty_edit])
+        self._refresh_items(order)
+        self.item_list.setCurrentRow(item_row)
 
     def on_delete_item(self):
         current_row = self.order_list.currentRow()
