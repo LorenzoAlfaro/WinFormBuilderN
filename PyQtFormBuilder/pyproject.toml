@@ -1,0 +1,9 @@
+[project]
+name = "pyqt-form-builder"
+version = "0.1.0"
+description = "A PyQt5 port of the WinForms form builder concepts"
+requires-python = ">=3.10"
+dependencies = ["PyQt5>=5.15"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
