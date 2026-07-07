@@ -116,6 +116,22 @@ class FormFunctionsTests(unittest.TestCase):
         self.assertEqual(order.items[-1].serial, "SN777")
         self.assertEqual(order.items[-1].qty, "3")
 
+    def test_dictionary_model_supports_load_and_update(self):
+        model = {"name": "", "price": ""}
+        name_edit = QLineEdit("Hello")
+        price_edit = QLineEdit("123")
+        name_edit.setProperty("binding", "orders,text,name,property")
+        price_edit.setProperty("binding", "orders,text,price,property")
+
+        update_fields(model, [name_edit, price_edit])
+        self.assertEqual(model["name"], "Hello")
+        self.assertEqual(model["price"], "123")
+
+        model = {"name": "Loaded", "price": "321"}
+        load_fields(model, [name_edit, price_edit])
+        self.assertEqual(name_edit.text(), "Loaded")
+        self.assertEqual(price_edit.text(), "321")
+
 
 if __name__ == "__main__":
     unittest.main()

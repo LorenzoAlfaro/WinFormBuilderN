@@ -29,6 +29,19 @@ def _set_control_value(control: QWidget, property_name: str, value: Any) -> None
     setattr(control, property_name, value)
 
 
+def _get_member_value(obj: Any, member_name: str) -> Any:
+    if isinstance(obj, dict):
+        return obj.get(member_name)
+    return getattr(obj, member_name, None)
+
+
+def _set_member_value(obj: Any, member_name: str, value: Any) -> None:
+    if isinstance(obj, dict):
+        obj[member_name] = value
+        return
+    setattr(obj, member_name, value)
+
+
 def load_fields(obj: Any, controls: Iterable[QWidget]) -> None:
     for control in controls:
         binding = control.property("binding")
@@ -38,9 +51,7 @@ def load_fields(obj: Any, controls: Iterable[QWidget]) -> None:
         if not parsed:
             continue
         _, control_property, member_name, member_kind = parsed
-        value = getattr(obj, member_name, None)
-        if member_kind == "field":
-            value = getattr(obj, member_name, None)
+        value = _get_member_value(obj, member_name)
         _set_control_value(control, control_property, value)
 
 
@@ -54,7 +65,7 @@ def update_fields(obj: Any, controls: Iterable[QWidget]) -> None:
             continue
         _, control_property, member_name, member_kind = parsed
         value = _get_control_value(control, control_property)
-        setattr(obj, member_name, value)
+        _set_member_value(obj, member_name, value)
 
 
 def create_object(collection: List[Any], item_type: type) -> Any:
