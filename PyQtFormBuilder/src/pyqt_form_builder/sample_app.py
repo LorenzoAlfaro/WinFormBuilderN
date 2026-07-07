@@ -138,6 +138,7 @@ class SampleWindow(QWidget):
 
     def on_create_order(self):
         order = create_object(self.orders, Order)
+        update_fields(order, [self.name_edit, self.price_edit])
         self._refresh_orders()
         self.order_list.setCurrentRow(self.order_list.count() - 1)
 
